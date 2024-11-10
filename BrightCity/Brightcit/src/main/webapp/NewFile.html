@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pothole Tracker</title>
+    <style>
+        /* Global styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9; /* Light gray background for the body */
+            color: #333; /* Dark text for good contrast */
+        }
+
+        header {
+            background-color: #1e3a8a; /* Blue header background */
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+        }
+        header p {
+            font-size: 1.2em;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        /* Section styling */
+        .section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            font-size: 1.75em;
+            margin-bottom: 15px;
+            color: #1e40af; /* Darker blue for section titles */
+        }
+
+        /* Form and input field styles */
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            background-color: #f9fafb; /* Light background for input fields */
+        }
+        .form-control:focus {
+            border-color: #4f8a1e; /* Green border on focus */
+            outline: none;
+        }
+
+        /* Buttons styles */
+        .button {
+            background-color: #4caf50; /* Green for submit buttons */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #45a049; /* Darker green when hovered */
+        }
+        .button:disabled {
+            background-color: #ddd; /* Disabled button style */
+            cursor: not-allowed;
+        }
+
+        /* Location output area */
+        #location-output {
+            margin-top: 15px;
+            font-size: 1em;
+            color: #1c991e; /* Green text color for success */
+        }
+
+        /* Map container style */
+        #map-container {
+            height: 250px;
+            background-color: #e5e7eb; /* Light gray background for map */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            font-size: 1.2em;
+            border-radius: 8px;
+        }
+
+        /* Footer styling */
+        footer {
+            background-color: #b91c1c; /* Red background for footer */
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin-top: 20px;
+        }
+        footer p {
+            font-size: 1em;
+        }
+
+        /* List styling */
+        #proof-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        #proof-list li {
+            background-color: #f9fafb;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #proof-list a {
+            color: #1e3a8a; /* Blue links */
+            text-decoration: none;
+        }
+        #proof-list a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+    
+    <header>
+        <h1>Pothole Tracker</h1>
+        <p>Report potholes, view repairs, and help keep our roads safe!</p>
+    </header>
+
+    <main>
+        <section id="report-pothole" class="section">
+            <h2>Report a Pothole</h2>
+            <form id="pothole-form" method="POST" action="submitPothole">
+                <input type="text" id="pothole-title" name="title" placeholder="Title" required class="form-control">
+                <textarea id="pothole-description" name="description" placeholder="Describe the pothole location" required class="form-control"></textarea>
+                <input type="hidden" id="latitude" name="latitude">
+                <input type="hidden" id="longitude" name="longitude">
+                <button type="button" onclick="getLocation()" class="button">Submit Location</button>
+                <div id="location-output" class="response-text"></div>
+                <button type="submit" class="button">Submit Report</button>
+            </form>
+        </section>
+
+        <section id="pothole-map" class="section">
+            <h2>Map of Potholes</h2>
+            <div id="map-container">Map will be here</div>
+        </section>
+
+        <section id="gov-proof" class="section">
+            <h2>Proof of Repairs</h2>
+            <ul id="proof-list">
+                <li>Repair on valachil. - Completed on 2024-11-10 - <a href="#">View Proof</a></li>
+                <li>Repair on naguri. - Completed on 2024-11-08 - <a href="#">View Proof</a></li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Pothole Tracker. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                document.getElementById('location-output').innerText = "Geolocation is not supported by this browser.";
+            }
+        }
+
+        function showPosition(position) {
+            document.getElementById('latitude').value = position.coords.latitude;
+            document.getElementById('longitude').value = position.coords.longitude;
+            document.getElementById('location-output').innerHTML = `
+                <p>Location Captured!</p>
+                <p>Latitude: ${position.coords.latitude}</p>
+                <p>Longitude: ${position.coords.longitude}</p>
+                <p><strong>Pothole reported successfully.</strong></p>
+            `;
+        }
+
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    document.getElementById('location-output').innerText = "User denied the request for Geolocation.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    document.getElementById('location-output').innerText = "Location information is unavailable.";
+                    break;
+                case error.TIMEOUT:
+                    document.getElementById('location-output').innerText = "The request to get user location timed out.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    document.getElementById('location-output').innerText = "An unknown error occurred.";
+                    break;
+            }
+        }
+
+    </script>
+    
+</body>
+</html>
+
